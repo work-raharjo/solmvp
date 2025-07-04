@@ -645,7 +645,7 @@ function WalletDashboard() {
 }
 
 // Top Up Screen
-function TopUpScreen() {
+function TopUpScreen({ user, fetchUserProfile }) {
   const [amount, setAmount] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('BCA_VA')
   const [loading, setLoading] = useState(false)
@@ -655,24 +655,43 @@ function TopUpScreen() {
 
   const handleTopUp = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      setError('Please enter a valid amount')
+      setError("Please enter a valid amount")
       return
     }
 
     setLoading(true)
-    setError('')
+    setError("")
+
+    if (user?.user_id === "demo_user") {
+      // Simulate successful top-up for demo user
+      setTimeout(() => {
+        const newBalance = user.balance + parseFloat(amount)
+        const newTransaction = {
+          id: `demo_topup_${Date.now()}`,
+          type: "TOPUP",
+          amount: parseFloat(amount),
+          status: "SUCCESS",
+          created_at: new Date().toISOString(),
+          description: `Simulated Top-up via ${paymentMethod}`,
+        }
+        fetchUserProfile({ ...user, balance: newBalance, transactions: [...user.transactions, newTransaction] })
+        setResult({ va_number: "DEMOVA123456", bank_code: "DEMO_BANK" })
+        setLoading(false)
+      }, 1000)
+      return
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/wallet/topup`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           amount: parseFloat(amount),
-          payment_method: paymentMethod
-        })
+          payment_method: paymentMethod,
+        }),
       })
 
       const data = await response.json()
@@ -680,15 +699,14 @@ function TopUpScreen() {
       if (response.ok) {
         setResult(data)
       } else {
-        setError(data.error || 'Top-up failed')
+        setError(data.error || "Top-up failed")
       }
     } catch (error) {
-      setError('Network error. Please try again.')
+      setError("Network error. Please try again.")
     } finally {
       setLoading(false)
     }
   }
-
   if (result) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
@@ -755,7 +773,8 @@ function TopUpScreen() {
                 { value: 'BCA_VA', label: 'BCA VA', icon: Building2 },
                 { value: 'BNI_VA', label: 'BNI VA', icon: Building2 },
                 { value: 'CREDIT_CARD', label: 'Credit Card', icon: CreditCard },
-                { value: 'OVO', label: 'OVO', icon: Smartphone }
+                { value: 'OVO', label: 'OVO', icon: Smartphone },
+                { value: 'PAYPAL', label: 'PayPal', icon: CreditCard } // Added PayPal
               ].map((method) => (
                 <Button
                   key={method.value}
@@ -793,7 +812,7 @@ function TopUpScreen() {
 }
 
 // QRIS Payment Screen
-function QRISScreen() {
+function QRISScreen({ user, fetchUserProfile }) {
   const [qrisCode, setQrisCode] = useState('')
   const [amount, setAmount] = useState('')
   const [loading, setLoading] = useState(false)
@@ -803,24 +822,42 @@ function QRISScreen() {
 
   const handlePayment = async () => {
     if (!qrisCode || !amount || parseFloat(amount) <= 0) {
-      setError('Please enter QRIS code and valid amount')
+      setError("Please enter QRIS code and valid amount")
       return
     }
 
     setLoading(true)
-    setError('')
+    setError("")
+    if (user?.user_id === "demo_user") {
+      // Simulate successful QRIS payment for demo user
+      setTimeout(() => {
+        const newBalance = user.balance - parseFloat(amount)
+        const newTransaction = {
+          id: `demo_qris_${Date.now()}`,
+          type: "QRIS_PAYMENT",
+          amount: -parseFloat(amount),
+          status: "SUCCESS",
+          created_at: new Date().toISOString(),
+          description: `Simulated QRIS Payment to ${qrisCode}`,
+        }
+        fetchUserProfile({ ...user, balance: newBalance, transactions: [...user.transactions, newTransaction] })
+        setResult({ remaining_balance: newBalance })
+        setLoading(false)
+      }, 1000)
+      return
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/wallet/qris-pay`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           amount: parseFloat(amount),
-          merchant_qris_code: qrisCode
-        })
+          merchant_qris_code: qrisCode,
+        }),
       })
 
       const data = await response.json()
@@ -828,13 +865,17 @@ function QRISScreen() {
       if (response.ok) {
         setResult(data)
       } else {
-        setError(data.error || 'Payment failed')
+        setError(data.error || "Payment failed")
       }
     } catch (error) {
-      setError('Network error. Please try again.')
+      setError("Network error. Please try again.")
     } finally {
       setLoading(false)
     }
+  }
+
+  const emulateQRScan = () => {
+    setQrisCode('DEMO_QRIS_MERCHANT_XYZ')
   }
 
   if (result) {
@@ -884,6 +925,10 @@ function QRISScreen() {
               onChange={(e) => setQrisCode(e.target.value)}
             />
           </div>
+          
+          <Button onClick={emulateQRScan} className="w-full" variant="outline">
+            <QrCode className="h-4 w-4 mr-2" /> Emulate QR Scan
+          </Button>
           
           <div>
             <Label htmlFor="amount">Amount (IDR)</Label>
@@ -935,7 +980,7 @@ function App() {
   return (
     <AuthProvider>
       <AuthContext.Consumer>
-        {({ user, loading }) => {
+        {({ user, loading, fetchUserProfile }) => {
           if (loading) {
             return (
               <div className="min-h-screen flex items-center justify-center">
@@ -957,9 +1002,9 @@ function App() {
 
           switch (currentScreen) {
             case 'topup':
-              return <TopUpScreen />
+              return <TopUpScreen user={user} fetchUserProfile={fetchUserProfile} />
             case 'qris':
-              return <QRISScreen />
+              return <QRISScreen user={user} fetchUserProfile={fetchUserProfile} />
             default:
               return <WalletDashboard />
           }
