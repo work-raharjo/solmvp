@@ -99,6 +99,27 @@ function LoginScreen() {
   const [error, setError] = useState('')
   const { login } = useContext(AuthContext)
 
+  const handleDemoLogin = () => {
+    setLoading(true)
+    setError('')
+    
+    // Simulate demo login with mock data
+    setTimeout(() => {
+      const demoToken = 'demo_token_' + Date.now()
+      const demoUser = {
+        user_id: 'demo_user',
+        email: 'demo@solwallet.com',
+        full_name: 'Demo User',
+        kyc_status: 'verified',
+        passport_number: 'DEMO123456',
+        phone_number: '+1234567890'
+      }
+      
+      login(demoToken, demoUser)
+      setLoading(false)
+    }, 1000)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -174,6 +195,29 @@ function LoginScreen() {
                 )}
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Signing in...' : 'Sign In'}
+                </Button>
+                
+                {/* Demo Mode Button */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or try demo
+                    </span>
+                  </div>
+                </div>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:from-green-100 hover:to-emerald-100 text-green-700"
+                  onClick={handleDemoLogin}
+                  disabled={loading}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Demo Mode - Try Sol Wallet
                 </Button>
               </form>
             </TabsContent>
@@ -404,6 +448,47 @@ function WalletDashboard() {
   const { user, token, logout } = useContext(AuthContext)
 
   useEffect(() => {
+    // Set demo data for demo users
+    if (user?.user_id === 'demo_user') {
+      setBalance(2500000) // IDR 2,500,000 demo balance
+      setTransactions([
+        {
+          id: 'demo_1',
+          type: 'TOPUP',
+          amount: 1000000,
+          status: 'SUCCESS',
+          created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+          description: 'Top-up via Credit Card'
+        },
+        {
+          id: 'demo_2',
+          type: 'QRIS_PAYMENT',
+          amount: -150000,
+          status: 'SUCCESS',
+          created_at: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
+          description: 'Payment to Warung Makan Sari'
+        },
+        {
+          id: 'demo_3',
+          type: 'TOPUP',
+          amount: 1500000,
+          status: 'SUCCESS',
+          created_at: new Date(Date.now() - 21600000).toISOString(), // 6 hours ago
+          description: 'Top-up via Virtual Account'
+        },
+        {
+          id: 'demo_4',
+          type: 'QRIS_PAYMENT',
+          amount: -75000,
+          status: 'SUCCESS',
+          created_at: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+          description: 'Payment to Starbucks Bali'
+        }
+      ])
+      setLoading(false)
+      return
+    }
+    
     fetchWalletData()
   }, [])
 
@@ -467,7 +552,15 @@ function WalletDashboard() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-bold">Sol Wallet</h1>
-            <p className="text-blue-100 text-sm">Welcome back!</p>
+            <p className="text-blue-100 text-sm">
+              {user?.user_id === 'demo_user' ? 'Demo Mode - Try all features!' : 'Welcome back!'}
+            </p>
+            {user?.user_id === 'demo_user' && (
+              <Badge variant="secondary" className="mt-1 bg-green-100 text-green-800 border-green-200">
+                <User className="w-3 h-3 mr-1" />
+                Demo Account
+              </Badge>
+            )}
           </div>
           <Button variant="ghost" size="sm" onClick={logout} className="text-white hover:bg-blue-700">
             <User className="h-4 w-4 mr-2" />
