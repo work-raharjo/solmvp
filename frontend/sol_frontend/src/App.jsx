@@ -651,7 +651,7 @@ function TopUpScreen({ user, fetchUserProfile }) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
-  const { token } = React.useContext(AuthContext)
+  const { token } = useContext(AuthContext)
 
   const handleTopUp = async () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -665,16 +665,6 @@ function TopUpScreen({ user, fetchUserProfile }) {
     if (user?.user_id === "demo_user") {
       // Simulate successful top-up for demo user
       setTimeout(() => {
-        const newBalance = user.balance + parseFloat(amount)
-        const newTransaction = {
-          id: `demo_topup_${Date.now()}`,
-          type: "TOPUP",
-          amount: parseFloat(amount),
-          status: "SUCCESS",
-          created_at: new Date().toISOString(),
-          description: `Simulated Top-up via ${paymentMethod}`,
-        }
-        fetchUserProfile({ ...user, balance: newBalance, transactions: [...user.transactions, newTransaction] })
         setResult({ va_number: "DEMOVA123456", bank_code: "DEMO_BANK" })
         setLoading(false)
       }, 1000)
@@ -818,7 +808,7 @@ function QRISScreen({ user, fetchUserProfile }) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
-  const { token } = React.useContext(AuthContext)
+  const { token } = useContext(AuthContext)
 
   const handlePayment = async () => {
     if (!qrisCode || !amount || parseFloat(amount) <= 0) {
@@ -831,17 +821,7 @@ function QRISScreen({ user, fetchUserProfile }) {
     if (user?.user_id === "demo_user") {
       // Simulate successful QRIS payment for demo user
       setTimeout(() => {
-        const newBalance = user.balance - parseFloat(amount)
-        const newTransaction = {
-          id: `demo_qris_${Date.now()}`,
-          type: "QRIS_PAYMENT",
-          amount: -parseFloat(amount),
-          status: "SUCCESS",
-          created_at: new Date().toISOString(),
-          description: `Simulated QRIS Payment to ${qrisCode}`,
-        }
-        fetchUserProfile({ ...user, balance: newBalance, transactions: [...user.transactions, newTransaction] })
-        setResult({ remaining_balance: newBalance })
+        setResult({ remaining_balance: 2000000 }) // Simulate remaining balance after payment
         setLoading(false)
       }, 1000)
       return
