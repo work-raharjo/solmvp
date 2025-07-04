@@ -37,7 +37,21 @@ function AuthProvider({ children }) {
 
   useEffect(() => {
     if (token) {
-      fetchUserProfile()
+      // For demo users, bypass API call and directly set user data if token indicates demo
+      if (token.startsWith('demo_token_')) {
+        const demoUser = {
+          user_id: 'demo_user',
+          email: 'demo@solwallet.com',
+          full_name: 'Demo User',
+          kyc_status: 'APPROVED',
+          passport_number: 'DEMO123456',
+          phone_number: '+1234567890'
+        }
+        setUser(demoUser)
+        setLoading(false)
+      } else {
+        fetchUserProfile()
+      }
     } else {
       setLoading(false)
     }
@@ -110,7 +124,7 @@ function LoginScreen() {
         user_id: 'demo_user',
         email: 'demo@solwallet.com',
         full_name: 'Demo User',
-        kyc_status: 'verified',
+        kyc_status: 'APPROVED',
         passport_number: 'DEMO123456',
         phone_number: '+1234567890'
       }
