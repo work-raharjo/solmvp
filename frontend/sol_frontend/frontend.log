@@ -1,0 +1,12 @@
+nohup: ignoring input
+
+> sol_frontend@0.0.0 dev
+> vite --host
+
+Port 5173 is in use, trying another one...
+Port 5174 is in use, trying another one...
+
+  VITE v6.3.5  ready in 493 ms
+
+  ➜  Local:   http://localhost:5175/
+  ➜  Network: http://169.254.0.21:5175/

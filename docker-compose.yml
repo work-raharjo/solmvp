@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
+    container_name: sol_database
+    environment:
+      POSTGRES_DB: sol_mvp
+      POSTGRES_USER: sol_user
+      POSTGRES_PASSWORD: sol_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - sol_network
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend/sol_backend
+      dockerfile: Dockerfile
+    container_name: sol_backend
+    environment:
+      - DATABASE_URL=postgresql://sol_user:sol_password@database:5432/sol_mvp
+      - JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
+      - PRIVY_API_KEY=your-privy-api-key
+      - XENDIT_API_KEY=your-xendit-api-key
+      - FLASK_ENV=production
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+    networks:
+      - sol_network
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
+
+  # Frontend Mobile App
+  frontend:
+    build:
+      context: ./frontend/sol_frontend
+      dockerfile: Dockerfile
+    container_name: sol_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - sol_network
+    restart: unless-stopped
+
+  # Admin Dashboard
+  admin:
+    build:
+      context: ./admin_dashboard/sol_admin
+      dockerfile: Dockerfile
+    container_name: sol_admin
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    networks:
+      - sol_network
+    restart: unless-stopped
+
+  # Redis for session management (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: sol_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - sol_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+networks:
+  sol_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+

@@ -1,0 +1,10 @@
+nohup: ignoring input
+
+> sol_admin@0.0.0 dev
+> vite --host --port 5176
+
+
+  VITE v6.3.5  ready in 623 ms
+
+  ➜  Local:   http://localhost:5176/
+  ➜  Network: http://169.254.0.21:5176/
