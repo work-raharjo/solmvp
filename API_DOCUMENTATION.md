@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Sol MVP API provides a comprehensive backend service for a passport-based QRIS wallet application designed for foreign tourists in Indonesia. The API handles user authentication, KYC verification through Privy, payment processing via Xendit, and administrative functions.
+The Sol MVP API provides a comprehensive backend service for a passport-based QRIS wallet application designed for foreign tourists in Indonesia. The API handles user authentication, KYC verification through Privy, payment processing via DOKU, and administrative functions.
 
 **Base URL**: `http://localhost:5000/api`  
 **Authentication**: JWT Bearer Token  
@@ -334,16 +334,11 @@ GET /wallet/transactions?page=1&limit=10&type=QRIS_PAYMENT&status=SUCCESS
     "current_page": 1,
     "total_pages": 5,
     "total_items": 47,
-    "items_per_page": 10
-  }
-}
-```
+    "item## DOKU Integration Endpoints
 
-## Xendit Integration Endpoints
+### POST /doku/create-virtual-account
 
-### POST /xendit/create-payment
-
-Create a new payment request via Xendit.
+Create a new virtual account via DOKU.
 
 **Headers:**
 ```
@@ -354,31 +349,24 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "amount": 100000,
-  "payment_method": "BCA_VA",
-  "description": "Wallet top-up",
-  "customer": {
-    "name": "John Smith",
-    "email": "john.smith@example.com",
-    "phone": "+1234567890"
-  }
+  "reference_id": "tx_topup_001"
 }
 ```
 
 **Response (201 Created):**
 ```json
 {
-  "payment_id": "xendit_payment_123",
-  "status": "PENDING",
-  "payment_url": "https://checkout.xendit.co/payment/123",
-  "payment_details": {
-    "va_number": "1234567890123456",
-    "bank_code": "BCA",
-    "expiry_date": "2024-01-21T14:30:00Z"
+  "referenceNo": "DOKU_REF_123",
+  "partnerReferenceNo": "PARTNER_REF_456",
+  "virtualAccountInfo": {
+    "virtualAccountNumber": "88881234567890",
+    "bankCode": "BCA",
+    "expiredTime": "2025-07-05T10:00:00Z"
   }
 }
 ```
 
-### POST /xendit/qris
+### POST /doku/generate-qris
 
 Generate QRIS payment request.
 
@@ -391,25 +379,19 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "amount": 25000,
-  "merchant_qr": "qris_merchant_code",
-  "description": "Payment to merchant"
+  "reference_id": "tx_qris_001"
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "qris_id": "qris_123",
-  "status": "ACTIVE",
-  "qr_string": "00020101021226280014ID.CO.QRIS...",
-  "amount": 25000,
-  "expiry_date": "2024-01-20T14:00:00Z"
+  "referenceNo": "DOKU_REF_123",
+  "partnerReferenceNo": "PARTNER_REF_456",
+  "qrContent": "QR_CODE_CONTENT_STRING",
+  "amount": 25000
 }
-```
-
-## Webhook Endpoints
-
-### POST /webhooks/privy
+``` /webhooks/privy
 
 Receive KYC status updates from Privy.
 
@@ -442,27 +424,31 @@ Content-Type: application/json
 }
 ```
 
-### POST /webhooks/xendit
+### POST /webhooks/doku
 
-Receive payment status updates from Xendit.
+Receive payment status updates from DOKU.
 
 **Headers:**
 ```
-X-Callback-Token: <webhook_token>
+X-Signature: <signature>
 Content-Type: application/json
 ```
 
 **Request Body:**
 ```json
 {
-  "id": "xendit_payment_123",
-  "external_id": "tx_topup_001",
-  "status": "PAID",
-  "amount": 100000,
-  "paid_amount": 100000,
-  "payment_method": "BCA_VA",
-  "paid_at": "2024-01-20T14:30:00Z",
-  "user_id": "1"
+  "transaction": {
+    "referenceNo": "DOKU_REF_123",
+    "partnerReferenceNo": "PARTNER_REF_456",
+    "status": "SUCCESS",
+    "amount": 100000,
+    "type": "VA"
+  },
+  "additionalInfo": {
+    "virtualAccountInfo": {
+      "virtualAccountNumber": "88881234567890"
+    }
+  }
 }
 ```
 
@@ -625,7 +611,7 @@ Check API health status.
   "services": {
     "database": "connected",
     "privy": "available",
-    "xendit": "available"
+    "doku": "available"
   }
 }
 ```

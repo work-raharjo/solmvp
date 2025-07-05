@@ -181,9 +181,7 @@ curl -X POST https://5000-i766nk1mvxe0akxdgpx2p-52910542.manusvm.computer/api/au
    - Transaction monitoring
    - Analytics and reporting
 
-4. **Technical Architecture** (3 minutes)
-   - API integrations (Privy, Xendit)
-   - Security and compliance features
+4. **Technical Architecture** (3 minute   - API integrations (Privy, DOKU)   - Security and compliance features
    - Scalability considerations
 
 5. **Business Metrics** (2 minutes)
@@ -263,7 +261,7 @@ curl -X POST https://5000-i766nk1mvxe0akxdgpx2p-52910542.manusvm.computer/api/au
 ### Technical Excellence
 - **Modern Architecture**: Microservices with API-first design
 - **Security First**: JWT authentication, encrypted data, secure APIs
-- **Integration Ready**: Privy KYC and Xendit payment integrations
+- **Integration Ready**: Privy KYC and DOKU payment integrations
 - **Production Ready**: Docker deployment, monitoring, documentation
 
 ## 📊 Demo Metrics to Show

@@ -40,7 +40,7 @@ This guide provides comprehensive instructions for deploying the Sol MVP (Passpo
 ### External Service Requirements
 
 - **Privy Account**: For KYC verification services
-- **Xendit Account**: For payment processing
+- **DOKU Account**: For payment processing
 - **Domain Name**: For production deployment
 - **Email Service**: For notifications (optional)
 
@@ -554,9 +554,10 @@ JWT_SECRET_KEY=dev-secret-key-change-in-production
 PRIVY_API_KEY=privy_sandbox_key
 PRIVY_API_URL=https://sandbox-api.privy.id
 
-# Xendit (Test)
-XENDIT_API_KEY=xnd_development_key
-XENDIT_WEBHOOK_TOKEN=test_webhook_token
+# DOKU (Test)
+DOKU_CLIENT_ID=doku_development_client_id
+DOKU_SECRET_KEY=doku_development_secret_key
+DOKU_WEBHOOK_SECRET=test_webhook_secret
 
 # Application
 FLASK_ENV=development
@@ -575,9 +576,10 @@ JWT_SECRET_KEY=super-secure-production-key-256-bits
 PRIVY_API_KEY=privy_production_key
 PRIVY_API_URL=https://api.privy.id
 
-# Xendit (Live)
-XENDIT_API_KEY=xnd_production_key
-XENDIT_WEBHOOK_TOKEN=production_webhook_token
+# DOKU (Live)
+DOKU_CLIENT_ID=doku_production_client_id
+DOKU_SECRET_KEY=doku_production_secret_key
+DOKU_WEBHOOK_SECRET=production_webhook_secret
 
 # Application
 FLASK_ENV=production
