@@ -1,6 +1,6 @@
 # Sol MVP - Passport-Based QRIS Wallet for Foreign Tourists
 
-Sol is a digital wallet application designed specifically for foreign tourists visiting Indonesia. It enables users to scan and pay at any QRIS merchant without requiring an Indonesian phone number, e-KTP, or local bank account. The system uses passport-based KYC verification through Privy and supports multiple payment methods via Xendit.
+Sol is a digital wallet application designed specifically for foreign tourists visiting Indonesia. It enables users to scan and pay at any QRIS merchant without requiring an Indonesian phone number, e-KTP, or local bank account. The system uses passport-based KYC verification through Privy and supports multiple payment methods via DOKU.
 
 ## 🚀 Features
 
