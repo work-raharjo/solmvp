@@ -348,8 +348,7 @@ The system integrates with Privy for KYC verification:
 
 ### Xendit Integration
 
-Payment processing through Xendit includes:
-
+Payment processing through DOKU includes:
 1. **Payment Methods**: Virtual Account, Credit Card, E-wallets
 2. **QRIS Processing**: Dynamic QR code generation and payment
 3. **Webhook Handling**: Real-time transaction status updates
