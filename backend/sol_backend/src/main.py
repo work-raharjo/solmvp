@@ -13,6 +13,7 @@ from src.routes.admin import admin_bp
 from src.routes.webhooks import webhooks_bp
 from src.routes.privy import privy_bp
 from src.routes.xendit import xendit_bp
+from src.routes.doku import doku_bp
 import bcrypt
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
@@ -35,6 +36,7 @@ app.register_blueprint(admin_bp, url_prefix='/api')
 app.register_blueprint(webhooks_bp, url_prefix='/api')
 app.register_blueprint(privy_bp, url_prefix='/api')
 app.register_blueprint(xendit_bp, url_prefix='/api')
+app.register_blueprint(doku_bp, url_prefix='/api')
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"

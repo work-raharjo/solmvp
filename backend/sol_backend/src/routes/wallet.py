@@ -114,35 +114,32 @@ def initiate_topup():
         db.session.add(transaction)
         db.session.commit()
         
-        # Create Xendit payment request (mock implementation)
-        from src.routes.xendit import mock_xendit_payment_request
-        xendit_response = mock_xendit_payment_request(
+        # Create DOKU virtual account (replacing Xendit)
+        from src.routes.doku import create_virtual_account
+        doku_response = create_virtual_account(
             amount=float(amount),
-            channel_code=channel_code,
-            reference_id=transaction.id
+            reference_id=str(transaction.id)
         )
         
-        # Store Xendit payment request ID
-        transaction.xendit_transaction_id = xendit_response['payment_request_id']
+        # Store DOKU reference
+        transaction.xendit_transaction_id = doku_response['referenceNo']
         db.session.commit()
         
         # Prepare response based on payment method
         response_data = {
             'transaction_id': transaction.id,
-            'payment_request_id': xendit_response['payment_request_id'],
+            'reference_no': doku_response['referenceNo'],
+            'partner_reference_no': doku_response['partnerReferenceNo'],
             'amount': float(amount),
             'payment_method': payment_method,
             'status': 'PENDING'
         }
         
-        # Add method-specific data
-        if 'VA' in channel_code:
-            response_data['va_number'] = xendit_response.get('channel_properties', {}).get('virtual_account_number')
-            response_data['bank_code'] = xendit_response.get('channel_properties', {}).get('bank_code')
-        elif 'actions' in xendit_response:
-            response_data['payment_url'] = xendit_response['actions'][0].get('url')
-            if channel_code == 'QRIS':
-                response_data['qr_string'] = xendit_response['actions'][0].get('qr_string')
+        # Add method-specific data for Virtual Account
+        if 'VA' in payment_method or payment_method == 'VA':
+            response_data['va_number'] = doku_response['virtualAccountInfo']['virtualAccountNumber']
+            response_data['bank_code'] = doku_response['virtualAccountInfo']['bankCode']
+            response_data['expired_time'] = doku_response['virtualAccountInfo']['expiredTime']
         
         return jsonify(response_data), 201
         
@@ -192,16 +189,15 @@ def qris_payment():
         db.session.add(transaction)
         db.session.commit()
         
-        # Create Xendit QRIS payment request (mock implementation)
-        from src.routes.xendit import mock_xendit_payment_request
-        xendit_response = mock_xendit_payment_request(
+        # Create DOKU QRIS payment (replacing Xendit)
+        from src.routes.doku import generate_qris
+        doku_response = generate_qris(
             amount=float(amount),
-            channel_code='QRIS',
-            reference_id=transaction.id
+            reference_id=str(transaction.id)
         )
         
-        # Store Xendit payment request ID
-        transaction.xendit_transaction_id = xendit_response['payment_request_id']
+        # Store DOKU reference
+        transaction.xendit_transaction_id = doku_response['referenceNo']
         
         # For QRIS payments, simulate immediate success (in real implementation, this would be handled by webhook)
         transaction.status = 'SUCCESS'
@@ -211,10 +207,12 @@ def qris_payment():
         
         return jsonify({
             'transaction_id': transaction.id,
-            'payment_request_id': xendit_response['payment_request_id'],
+            'reference_no': doku_response['referenceNo'],
+            'partner_reference_no': doku_response['partnerReferenceNo'],
             'status': transaction.status,
             'amount': float(amount),
             'remaining_balance': float(user.wallet_balance),
+            'qr_content': doku_response['qrContent'],
             'merchant_qris_code': data['merchant_qris_code']
         }), 200
         
