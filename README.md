@@ -346,7 +346,7 @@ The system integrates with Privy for KYC verification:
 3. **Liveness Detection**: Selfie verification against passport photo
 4. **Webhook Updates**: Real-time status updates via webhooks
 
-### Xendit Integration
+### DOKU Integration
 
 Payment processing through DOKU includes:
 1. **Payment Methods**: Virtual Account, Credit Card, E-wallets
