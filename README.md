@@ -21,7 +21,7 @@ Sol is a digital wallet application designed specifically for foreign tourists v
 
 ### Compliance & Security
 - **KYC Compliance**: Full KYC verification using Privy's passport OCR and selfie matching
-- **Secure Payments**: All payments processed through Xendit as registered Payment Service Provider
+- **Secure Payments**: All payments processed through DOKU as registered Payment Service Provider
 - **Audit Trail**: Complete transaction and user activity logging
 - **Data Protection**: Secure handling of sensitive user data and documents
 
@@ -38,7 +38,7 @@ Sol is a digital wallet application designed specifically for foreign tourists v
 
 ### API Integrations
 - **Privy**: KYC verification, passport OCR, and liveness detection
-- **Xendit**: Payment processing, QRIS generation, and webhook handling
+- **DOKU**: Payment processing, QRIS generation, and webhook handling
 
 ## 📦 Project Structure
 
@@ -137,9 +137,10 @@ JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
 PRIVY_API_KEY=your-privy-api-key
 PRIVY_API_URL=https://api.privy.id
 
-# Xendit API Configuration
-XENDIT_API_KEY=your-xendit-api-key
-XENDIT_WEBHOOK_TOKEN=your-xendit-webhook-token
+# DOKU API Configuration
+DOKU_CLIENT_ID=your-doku-client-id
+DOKU_SECRET_KEY=your-doku-secret-key
+DOKU_WEBHOOK_SECRET=your-doku-webhook-secret
 
 # Application Configuration
 FLASK_ENV=development
@@ -154,8 +155,8 @@ MAX_CONTENT_LENGTH=16777216  # 16MB
    - Obtain API credentials for KYC services
    - Configure webhook endpoints for status updates
 
-2. **Xendit API Key**
-   - Register at [Xendit](https://xendit.co)
+2. **DOKU API Key**
+   - Register at [DOKU](https://doku.com)
    - Get API keys for payment processing
    - Set up webhook URLs for transaction updates
 
@@ -213,13 +214,28 @@ Submit passport and selfie for KYC verification.
 Get current wallet balance (requires authentication).
 
 #### POST /api/wallet/topup
-Initiate wallet top-up via Xendit.
+Initiate wallet top-up via DOKU.
 
 **Request Body:**
 ```json
 {
   "amount": 100000,
   "payment_method": "BCA_VA"
+}
+```
+
+**Response:**
+```json
+{
+  "transaction_id": 123,
+  "reference_no": "DOKU_REF_123",
+  "partner_reference_no": "PARTNER_REF_456",
+  "amount": 100000,
+  "payment_method": "BCA_VA",
+  "status": "PENDING",
+  "va_number": "88881234567890",
+  "bank_code": "BCA",
+  "expired_time": "2025-07-05T10:00:00Z"
 }
 ```
 
@@ -231,6 +247,20 @@ Process QRIS payment.
 {
   "qr_code": "qris_code_string",
   "amount": 25000
+}
+```
+
+**Response:**
+```json
+{
+  "transaction_id": 123,
+  "reference_no": "DOKU_REF_123",
+  "partner_reference_no": "PARTNER_REF_456",
+  "status": "SUCCESS",
+  "amount": 25000,
+  "remaining_balance": 1000000,
+  "qr_content": "QR_CODE_CONTENT_STRING",
+  "merchant_qris_code": "MERCHANT_QRIS_XYZ"
 }
 ```
 
